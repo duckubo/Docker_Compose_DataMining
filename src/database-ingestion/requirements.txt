@@ -1,0 +1,12 @@
+requests
+beautifulsoup4
+mysql-connector-python
+pymysql
+mysql-replication
+cryptography
+Flask
+Flask-Cors
+jsonify
+CORS
+flask-socketio
+PyYAML

@@ -1,0 +1,50 @@
+services:
+  database:
+    build:
+      context: ../src/database
+      dockerfile: Dockerfile
+    volumes:
+      - ../src/database/init.sql:/docker-entrypoint-initdb.d/init.sql  # Correct the path to init.sql file
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: stock-data
+    ports:
+      - "3307:3306"
+
+  database-api:
+    build:
+      context: ../src/database-api
+      dockerfile: Dockerfile
+    volumes:
+      - ../src/database-api:/app/database-api
+      - ../src/config:/app/config
+    depends_on:
+      - database
+    ports:
+      - "5000:5000"
+   
+
+  database-ingestion:
+    build:
+      context: ../src/database-ingestion
+      dockerfile: Dockerfile
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ../src/database-ingestion:/app/database-ingestion
+      - ../src/config:/app/config
+    depends_on:
+      - database
+
+  frontend:
+    image: node:18  # Dùng Node.js 18 để build ứng dụng React
+    container_name: frontend
+    working_dir: /app/frontend  
+    volumes:
+      - ../src/frontend:/app/frontend  # Mount thư mục source code của frontend
+    ports:
+      - "3000:3000"  # Expose cổng 3000 để truy cập ứng dụng
+    command: >
+      sh -c "npm install && npm start"  # Cài đặt dependencies và chạy dev server
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Hỗ trợ hot-reload trên Docker

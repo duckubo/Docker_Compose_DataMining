@@ -1,0 +1,68 @@
+.dashboard {
+  flex: 4;
+}
+
+.homeWidgets {
+  display: flex;
+  margin: 20px;
+}
+.divide {
+  display: flex;
+  width: 100%;
+  gap: 5px;
+}
+.appl {
+  flex: 1;
+  border: 2px solid #3498db; /* Đường viền màu xanh */
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); /* Hiệu ứng nổi */
+  border-radius: 20px; /* Bo góc (tuỳ chọn) */
+  padding: 5px;
+}
+.goog {
+  flex: 1;
+  border: 2px solid #3498db; /* Đường viền màu xanh */
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); /* Hiệu ứng nổi */
+  border-radius: 20px; /* Bo góc (tuỳ chọn) */
+  padding: 5px;
+}
+.amzn {
+  flex: 1;
+  border: 2px solid #3498db; /* Đường viền màu xanh */
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); /* Hiệu ứng nổi */
+  border-radius: 20px; /* Bo góc (tuỳ chọn) */
+  padding: 5px;
+}
+.stock {
+  flex: 5;
+}
+.pred_box {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 15px;
+}
+.stock-info {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+}
+
+.info-box {
+  color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  width: 250px;
+  text-align: center;
+}
+
+.chart-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 20px;
+}
+
+.chart-box {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+}

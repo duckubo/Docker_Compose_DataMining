@@ -1,0 +1,15 @@
+pandas
+numpy
+requests
+statsmodels
+scikit-learn
+mysql-connector-python
+pymysql
+mysql-replication
+cryptography
+Flask
+Flask-Cors
+jsonify
+CORS
+flask-socketio
+PyYAML

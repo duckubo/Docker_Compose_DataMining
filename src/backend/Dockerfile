@@ -1,13 +1,11 @@
 # Dockerfile cho database API
 FROM python:3.9-slim
 
-WORKDIR /app
+WORKDIR /app/backend
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-# Sao chép tệp cấu hình GML
-COPY ../config/config.gml /app/config.gml  
+COPY . . 
 
 CMD ["python", "app.py"]

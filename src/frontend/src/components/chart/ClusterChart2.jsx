@@ -4,7 +4,6 @@ import Plot from 'react-plotly.js';
 
 const ClusterChart = ({ ticket }) => {
     const [clusterData, setClusterData] = useState([]);
-    const [plotData_Slice, setPlotData] = useState([]);
 
     useEffect(() => {
         axios.get(`http://localhost:5000/api/get-cluster-data-trend?ticket=${ticket}`)
@@ -14,7 +13,7 @@ const ClusterChart = ({ ticket }) => {
             .catch(error => {
                 console.error('Có lỗi khi lấy dữ liệu:', error);
             });
-    }, []);
+    }, [ticket]);
 
     // Màu sắc cho từng cụm
     const colors = ['red', 'blue', 'green', 'purple', 'yellow', 'brown'];

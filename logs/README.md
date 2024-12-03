@@ -1,1 +1,1 @@
-docker-compose -f logs/docker-compose.yml up --build
+docker-compose  up --build

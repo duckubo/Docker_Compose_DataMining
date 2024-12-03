@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 const EmbedWidgetMarketOverview = ({ ticket }) => {
     useEffect(() => {
@@ -6,6 +6,7 @@ const EmbedWidgetMarketOverview = ({ ticket }) => {
         script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js';
         script.async = true;
         script.innerHTML = JSON.stringify({
+
             colorTheme: "light",
             dateRange: "12m",
             showChart: true,

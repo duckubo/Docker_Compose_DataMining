@@ -1,30 +1,29 @@
 import React, { useState, useEffect } from 'react';
 
 const StockInfo = ({ ticket }) => {
-    const [stockData, setStockData] = useState({
-        open: '0.00',
-        high: '0.00',
-        low: '0.00',
-        close: '0.00',
-        volume: '0',
-    });
+    const [stockData, setStockData] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log("Ticket:", ticket);
         const fetchData = async () => {
             try {
                 setLoading(true); // Bắt đầu trạng thái loading
                 const response = await fetch(`http://localhost:5000/api/stock-info?ticket=${ticket}`);
                 if (response.ok) {
                     const data = await response.json();
-                    if (data && data.newest_data) {
+                    if (data && Array.isArray(data.newest_data) && data.newest_data.length > 0) {
+                        const newest = data.newest_data[0]; // Lấy phần tử đầu tiên của mảng
                         setStockData({
-                            open: data.newest_data.open || '0.00',
-                            high: data.newest_data.high || '0.00',
-                            low: data.newest_data.low || '0.00',
-                            close: data.newest_data.close || '0.00',
-                            volume: data.newest_data.volume || '0',
+                            open: newest.open || "0.00",
+                            high: newest.high || "0.00",
+                            low: newest.low || "0.00",
+                            close: newest.close || "0.00",
+                            volume: newest.volume || "0",
+                            datetime: newest.datetime || "N/A", // Sửa lỗi "dateime"
                         });
+                    } else {
+                        console.error("No data available in newest_data array.");
                     }
                 } else {
                     console.error('Error fetching stock data:', response.status);
@@ -42,6 +41,7 @@ const StockInfo = ({ ticket }) => {
     if (loading) {
         return <p>Loading stock data...</p>; // Hiển thị loading nếu dữ liệu chưa sẵn sàng
     }
+    console.log(stockData);
 
     return (
         <div className="stock-info" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 
 const TrendSeasonalChart = ({ ticket }) => {
-    const [data, setData] = useState({ prices: [], trend: [], seasonal: [] });
     const [prices, setPricesData] = useState([]);
     const [trend, setTrendData] = useState([]);
     const [seasonal, setSeasonalData] = useState([]);

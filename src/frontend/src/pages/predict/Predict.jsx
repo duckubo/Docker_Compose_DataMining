@@ -1,5 +1,3 @@
-import React, { useState, useEffect } from 'react';
-import LineChart from '../../components/chart/LineChart';
 import StockInfo from '../../components/stockInfo/StockInfo';
 import SentimentComponent from '../../components/sentiment/SentimentComponent';
 import Trend from '../../components/chart/Trend';

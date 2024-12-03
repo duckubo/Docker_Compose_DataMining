@@ -30,7 +30,7 @@ def get_stock_data():
     try:
         with connection.cursor() as cursor:
             # Use parameterized query to prevent SQL injection
-            cursor.execute("SELECT * FROM stocks_data WHERE code = %s", (ticket,))
+            cursor.execute("SELECT * FROM stocks_data WHERE code = %s  order by datetime asc", (ticket,) )
             result = cursor.fetchall()
 
         # Assuming the correct column indexing is like this: 
@@ -39,7 +39,9 @@ def get_stock_data():
             result, 
             columns=["id","datetime", "open", "high", "low", "close", "volume","code"]
         )
+        df = df.drop(columns=['id'])
         df = df.drop(columns=['code'])
+        
         df['datetime'] = pd.to_datetime(df['datetime'])
         df["close"] = pd.to_numeric(df["close"])
         
@@ -51,7 +53,6 @@ def get_stock_data():
         df = df.dropna(subset=numeric_columns)
 
         df.set_index('datetime', inplace=True)  # Đặt datetime làm index
-        print(df.dtypes)
         weekly_resample = df.resample('W').mean()
         monthly_resample = df.resample('M').mean()
 
@@ -91,22 +92,26 @@ def stock_info():
  
     if not ticket:
         return jsonify({'error': 'No stock symbol (ticket) provided'}), 400
-    
-    # Đọc dữ liệu từ file CSV
-    df = pd.read_csv('newest_stock_data.csv')
-
-    # Lọc dữ liệu cho mã cổ phiếu tương ứng
-    df_symbol = df[df['code'] == ticket].copy()
-
-    # Chuyển đổi cột 'datetime' thành kiểu datetime
-    df_symbol['datetime'] = pd.to_datetime(df_symbol['datetime'])
-
-    # Lấy giá trị mới nhất của cột 'close'
-    newest = df_symbol.to_dict(orient='records')[0]  # 
-    # Sử dụng .values[0] để lấy giá trị đầu tiên từ Series
-    return jsonify({
-        'newest_data': newest,
-    })
+    connection = connect_to_db()
+    if connection is None:
+        return jsonify({"error": "Không thể kết nối đến cơ sở dữ liệu"}), 500
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM newest_stock_data  WHERE code = %s ORDER BY datetime DESC LIMIT 1", (ticket) )
+            result = cursor.fetchall()
+        newest = [
+            { "datetime": row[1], "open": row[2],"high": row[3], "low": row[4],"close": row[5], "volume": row[6] }  # Giả sử cấu trúc bảng là như thế này
+            for row in result
+        ] 
+        return jsonify({
+            'newest_data': newest,
+        })
+    except Exception as e:
+        return jsonify({"error": f"Lỗi khi truy vấn cơ sở dữ liệu: {e}"}), 500
+    finally:
+        if connection and connection.open:
+            connection.close()  # Đảm bảo rằng kết nối được đóng sau mỗi yêu cầu
+            
 @app.route('/api/get-close-data', methods=['GET'])
 def get_data():
     

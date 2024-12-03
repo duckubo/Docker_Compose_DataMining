@@ -98,7 +98,7 @@ const LinearChart = ({ ticket, color1, color2 }) => {
                                         ? selectedPrediction.Prediction.toFixed(2)
                                         : ""}
                                 </h2>
-                                <p className="m-b-0 text-white">TOMORROW'S ${ticket} CLOSING PRICE BY ARIMA</p>
+                                <p className="m-b-0 text-white">TOMORROW'S ${ticket} CLOSING PRICE BY LINEAR REGRESSION</p>
                             </div>
                         </div>
                     </div>
@@ -115,7 +115,7 @@ const LinearChart = ({ ticket, color1, color2 }) => {
                                         ? selectedPrediction.RMSE.toFixed(2)
                                         : ""}
                                 </h2>
-                                <p className="m-b-0 text-white">ARIMA RMSE</p>
+                                <p className="m-b-0 text-white">LINEAR REGRESSION RMSE</p>
                             </div>
                         </div>
                     </div>

@@ -36,6 +36,20 @@ services:
     depends_on:
       - database
 
+  backend:
+    build:
+      context: ../src/backend
+      dockerfile: Dockerfile
+    container_name: backend
+    
+    volumes:
+      - ../src/backend:/app/backend  # Mount code để dễ phát triển
+      - ../src/config:/app/config
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - database
+
   frontend:
     image: node:18  # Dùng Node.js 18 để build ứng dụng React
     container_name: frontend

@@ -13,7 +13,7 @@ const SpiderChart = ({ ticket }) => {
             .catch(error => {
                 console.error('Có lỗi khi lấy dữ liệu:', error);
             });
-    }, []);
+    }, [ticket]);
 
     // Tạo các trace cho mỗi năm
     const plotData = seasonData.map((yearData) => ({

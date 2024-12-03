@@ -14,30 +14,30 @@ const RadarChartPlot = ({ ticket }) => {
             .catch(error => {
                 console.error('Có lỗi khi lấy dữ liệu:', error);
             });
-    }, []);
+    }, [ticket]);
 
     // Tạo các trace cho mỗi năm
-    const plotData = seasonData.map((yearData) => ({
-        type: 'scatterpolar',
-        r: [yearData.VeryLow, yearData.Low, yearData.Average, yearData.High, yearData.Spike, yearData.Ultra_High],
-        theta: ['Very Low', 'Low', 'Average', 'High', 'Spike', 'Ultra-High'],  // Các mùa
-        fill: 'toself',
-        name: `Year ${yearData.year}`, // Tên năm
-    }));
+    // const plotData = seasonData.map((yearData) => ({
+    //     type: 'scatterpolar',
+    //     r: [yearData.VeryLow, yearData.Low, yearData.Average, yearData.High, yearData.Spike, yearData.Ultra_High],
+    //     theta: ['Very Low', 'Low', 'Average', 'High', 'Spike', 'Ultra-High'],  // Các mùa
+    //     fill: 'toself',
+    //     name: `Year ${yearData.year}`, // Tên năm
+    // }));
 
-    // Cấu hình layout chung cho các biểu đồ
-    const layout = {
-        polar: {
-            radialaxis: {
-                visible: true,
-                range: [0, Math.max(...seasonData.flatMap(item => [item.VeryLow, item.Low, item.Average, item.High, item.Spike, item.Ultra_High]))],
-            },
-        },
-        showlegend: true,
-        title: 'Số ngày trong từng mùa theo năm',
-        width: 800,
-        height: 600,
-    };
+    // // Cấu hình layout chung cho các biểu đồ
+    // const layout = {
+    //     polar: {
+    //         radialaxis: {
+    //             visible: true,
+    //             range: [0, Math.max(...seasonData.flatMap(item => [item.VeryLow, item.Low, item.Average, item.High, item.Spike, item.Ultra_High]))],
+    //         },
+    //     },
+    //     showlegend: true,
+    //     title: 'Số ngày trong từng mùa theo năm',
+    //     width: 800,
+    //     height: 600,
+    // };
 
     return (
         <div>

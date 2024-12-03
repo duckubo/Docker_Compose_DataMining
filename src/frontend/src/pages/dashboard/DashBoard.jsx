@@ -1,5 +1,4 @@
 import './dashboard.css';
-import React, { useState, useEffect } from 'react';
 import CandlestickChart1D from '../../components/chart/CandlestickChart1D';
 import CandlestickChart1H from '../../components/chart/CandlestickChart1H';
 import CandlestickChart1M from '../../components/chart/CandlestickChart1M';

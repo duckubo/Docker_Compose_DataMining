@@ -1,0 +1,9 @@
+mysql-connector-python
+pymysql
+mysql-replication
+cryptography
+PyYAML
+pandas
+numpy
+scikit_learn
+joblib

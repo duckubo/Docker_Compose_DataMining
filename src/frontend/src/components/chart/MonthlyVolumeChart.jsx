@@ -20,7 +20,7 @@ const MonthlyVolumeChart = ({ ticket }) => {
         };
 
         fetchData();
-    }, []);
+    }, [ticket]);
 
     const colors = [
         'rgba(255, 99, 132, 0.7)',  // Đỏ nhạt

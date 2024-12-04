@@ -14,7 +14,7 @@ def fetch_data(ticker):
         'symbol': ticker,
         'interval': '1day',
         'apikey': api_key,
-        'outputsize': 10,
+        'outputsize': 30,
     }
     try:
         response = requests.get(url, params=params)

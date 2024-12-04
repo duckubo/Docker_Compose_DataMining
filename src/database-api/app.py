@@ -14,6 +14,27 @@ config_path = os.path.join(os.path.dirname(__file__), '../config/config.yml')
 with open(config_path, 'r') as config_file:
     config = yaml.safe_load(config_file)
     
+@app.route('/api/stocks-data', methods=['GET'])
+def get_stocks_data():
+    
+    connection = connect_to_db()
+    if connection is None:
+        return jsonify({"error": "Không thể kết nối đến cơ sở dữ liệu"}), 500
+
+    try:
+        with connection.cursor() as cursor:
+            # Use parameterized query to prevent SQL injection
+            cursor.execute("SELECT * FROM stocks_data   order by datetime asc" )
+            result = cursor.fetchall()
+        
+        # Chuẩn bị dữ liệu gửi đến frontend
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": f"Lỗi khi truy vấn cơ sở dữ liệu: {e}"}), 500
+    finally:
+        if connection and connection.open:
+            connection.close()  # Đảm bảo rằng kết nối được đóng sau mỗi yêu cầu
+            
 @app.route('/api/stock-data', methods=['GET'])
 def get_stock_data():
     
@@ -499,6 +520,6 @@ def get_season_counts_trend():
     finally:
         if connection and connection.open:
             connection.close()  # Đảm bảo rằng kết nối được đóng sau mỗi yêu cầu
-            
+ 
 if __name__ == '__main__':
     app.run(host=config['api']['host'], port=config['api']['port'])

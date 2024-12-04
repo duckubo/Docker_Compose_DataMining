@@ -15,7 +15,7 @@ const EmbedWidgetMarketOverview = ({ ticket }) => {
             largeChartUrl: "",
             isTransparent: false,
             height: "250",
-            width: "620",
+            width: "790",
             plotLineColorGrowing: "rgba(25, 118, 210, 1)",
             plotLineColorFalling: "rgba(25, 118, 210, 1)",
             gridLineColor: "rgba(42, 46, 57, 1)",

@@ -8,6 +8,6 @@ numpy
 scikit_learn
 joblib
 statsmodels
-Flask
+flask
 apscheduler
-TextBlob
+textblob

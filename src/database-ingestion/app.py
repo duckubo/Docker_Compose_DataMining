@@ -1,10 +1,11 @@
 import requests
-import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
-import time  # Import time module to use sleep
 from connection import connect_to_db 
-
+from flask import Flask, jsonify, request
+from apscheduler.schedulers.background import BackgroundScheduler
+import pandas as pd
+app = Flask(__name__)
 def fetch_data(ticker):
     api_key = 'e4ee6d020dab406ba8a901400da6d0a8'
     ticker = ticker
@@ -27,7 +28,34 @@ def fetch_data(ticker):
     except requests.RequestException as e:
         print(f"Error fetching data from {url}: {e}")
         return None
+def fetch_twit():
+    connection = connect_to_db()
+    if connection is None:
+        return None
+    try:
+        url = "https://raw.githubusercontent.com/dD2405/Twitter_Sentiment_Analysis/master/train.csv"
 
+        df = pd.read_csv(url)
+        
+        cursor = connection.cursor()
+        insert_query = """
+        INSERT INTO tweets (label, tweet) VALUES (%s, %s)
+        """
+
+        # Duyệt qua từng dòng dữ liệu và chèn vào cơ sở dữ liệu
+        data_to_insert = [(int(row['label']), row['tweet']) for _, row in df.iterrows()]
+        cursor.executemany(insert_query, data_to_insert)
+
+        # Commit thay đổi
+        connection.commit()
+
+        print(f"{cursor.rowcount} rows inserted into the database.")
+    except requests.RequestException as e:
+        print(f"Error fetching data from {url}: {e}")
+        return None
+    finally:
+        cursor.close()
+        connection.close()
 def save_to_db(ticker, datetime_str, open_price, high_price, low_price, close_price, volume):
     
     connection = connect_to_db()
@@ -100,26 +128,42 @@ def check_for_new_posts(ticker, data):
     else:
         print("No valid data fetched from API.")
         return None
-
-if __name__ == "__main__":
-    while True: 
-        tickers = ["AAPL", "AMZN", "GOOG"]
-        for ticker in tickers:
-            data = fetch_data(ticker)
-            newest_data=data["values"][0]
-            print(newest_data)
-            datetime_str = newest_data["datetime"]
-            datetime_obj = datetime.strptime(datetime_str, '%Y-%m-%d')
-            save_to_db_newest(ticker, datetime_obj, newest_data["open"], newest_data["high"], newest_data["low"], newest_data["close"], newest_data["volume"])
-            if data:
-                new_data = check_for_new_posts(ticker, data)
-                if new_data:
-                    print("New data saved for the following datetimes:")
-                    for datetime_str in new_data:
-                        print(datetime_str)
-                else:
-                    print("No new data found.")
+def save_newest_info():
+    tickers = ["AAPL", "AMZN", "GOOG"]
+    for ticker in tickers:
+        data = fetch_data(ticker)
+        newest_data=data["values"][0]
+        print(newest_data)
+        datetime_str = newest_data["datetime"]
+        datetime_obj = datetime.strptime(datetime_str, '%Y-%m-%d')
+        save_to_db_newest(ticker, datetime_obj, newest_data["open"], newest_data["high"], newest_data["low"], newest_data["close"], newest_data["volume"])
+def save_newest_data():
+    tickers = ["AAPL", "AMZN", "GOOG"]
+    for ticker in tickers:
+        data = fetch_data(ticker)
+        if data:
+            new_data = check_for_new_posts(ticker, data)
+            if new_data:
+                print("New data saved for the following datetimes:")
+                for datetime_str in new_data:
+                    print(datetime_str)
             else:
-                print("No data fetched.")
-        print("Sleeping for 12 hours...")
-        time.sleep(12 * 60 * 60) 
+                print("No new data found.")
+        else:
+            print("No data fetched.")
+def save_newest_twit():
+    fetch_twit()
+        
+scheduler = BackgroundScheduler()
+
+scheduler.add_job(func=save_newest_info, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
+scheduler.add_job(func=save_newest_data, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
+scheduler.add_job(func=save_newest_twit, trigger="interval", hours=1)  # Lấy dữ liệu mỗi 5 giây
+# scheduler.add_job(func=saveArimaPredictData, trigger="interval", seconds=10)  # In dữ liệu mỗi 5 giây
+scheduler.start()
+if __name__ == '__main__':
+    try:
+        # Đảm bảo rằng ứng dụng Flask không thoát khi chạy
+        app.run(debug=True, use_reloader=False, port=6100)
+    except (KeyboardInterrupt, SystemExit):
+        pass

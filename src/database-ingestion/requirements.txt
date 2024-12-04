@@ -4,3 +4,6 @@ pymysql
 mysql-replication
 cryptography
 PyYAML
+pandas
+flask
+apscheduler

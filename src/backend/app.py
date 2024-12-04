@@ -3,11 +3,9 @@ from flask import Flask, jsonify, request
 import pandas as pd
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 from sklearn.cluster import KMeans
-import joblib
 import numpy as np
 # Thông tin kết nối đến MySQL
 import threading
-import time
 from connection import connect_to_db 
 from statsmodels.tsa.seasonal import seasonal_decompose
 # Định nghĩa hàm get_data
@@ -60,7 +58,7 @@ def loadTwit():
             return None
         with connection.cursor() as cursor:
             # Write your SQL query
-            sql_query = "SELECT * FROM process_tweet_data"
+            sql_query = "SELECT * FROM tweets"
             # Execute the query
             cursor.execute(sql_query)
             
@@ -335,7 +333,7 @@ def saveArimaPredictData7():
     finally:
         connection.close()
         
-def saveLstmPredictData(code):
+def saveLstmPredictData():
     connection = connect_to_db()
     if connection is None:
         return None
@@ -343,7 +341,7 @@ def saveLstmPredictData(code):
         df = df_base.copy()
         tickers = ["AAPL", "AMZN", "GOOG"]
         for index, ticker in enumerate(tickers):
-            model = joblib.load(f'model/lstm/lstm_model_{code}.h5')  # Hoặc sử dụng pickle.load() nếu bạn sử dụng pickle
+            model = joblib.load(f'model/lstm/lstm_model_{ticker}.h5')  # Hoặc sử dụng pickle.load() nếu bạn sử dụng pickle
             df = df[df['code'] == ticker].copy()
             # Chuyển dữ liệu thành dạng phù hợp cho mô hình
             scaler = MinMaxScaler(feature_range=(0, 1))
@@ -360,13 +358,13 @@ def saveLstmPredictData(code):
             predicted_price = scaler.inverse_transform(predicted_price)
 
             cursor = connection.cursor()
-            cursor.execute("SELECT close FROM newest_stock_data WHERE code = %s ORDER BY datetime DESC LIMIT 1", (code,))
+            cursor.execute("SELECT close FROM newest_stock_data WHERE code = %s ORDER BY datetime DESC LIMIT 1", (ticker,))
             actual_value = cursor.fetchone()
             
             rmse = np.sqrt(np.mean((np.array(actual_value) - np.array(predicted_price))**2))
             
             delete_sql = "DELETE FROM predictions_lstm WHERE Code = %s"  # Make sure 'Code' is the identifier
-            cursor.execute(delete_sql, (code,))
+            cursor.execute(delete_sql, (ticker,))
             
             
             # Câu lệnh SQL để chèn dữ liệu vào bảng 'scatter_data_trend'
@@ -593,7 +591,7 @@ def saveTwitterData():
     except Exception as e:
         print(f"Error occurred: {e}")
     finally:
-        # Đóng kết nối
+        # Đóng kết nốiS
         connection.close()
 
 scheduler = BackgroundScheduler()

@@ -3,7 +3,7 @@ api:
   port: 5000
 
 database:
-  host: "localhost"
+  host: "database"
   username: "root"
   password: "root"
-  database_name: "stock_data"
+  database_name: "stock-data"

@@ -15,6 +15,10 @@ const CandlestickChart1M = ({ ticket }) => {
         };
 
         fetchData();
+        const intervalId = setInterval(() => {
+            fetchData();
+        }, 12 * 60 * 60 * 1000); // 5 phút = 5 * 60 * 1000 ms
+
     }, [ticket]);
 
     const formatData = (stockData) => {

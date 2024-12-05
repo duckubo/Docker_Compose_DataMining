@@ -34,8 +34,11 @@ const StockInfo = ({ ticket }) => {
                 setLoading(false); // Kết thúc trạng thái loading
             }
         };
-
         fetchData();
+        const intervalId = setInterval(() => {
+            fetchData();
+        }, 5 * 60 * 1000); // 5 phút = 5 * 60 * 1000 ms
+
     }, [ticket]);
 
     if (loading) {

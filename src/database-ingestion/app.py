@@ -28,6 +28,28 @@ def fetch_data(ticker):
     except requests.RequestException as e:
         print(f"Error fetching data from {url}: {e}")
         return None
+def fetch_data_newest(ticker):
+    api_key = 'e4ee6d020dab406ba8a901400da6d0a8'
+    ticker = ticker
+    url = "https://api.twelvedata.com/time_series?"
+
+    params = {
+        'symbol': ticker,
+        'interval': '5min',
+        'apikey': api_key,
+        'outputsize': 1,
+    }
+    try:
+        response = requests.get(url, params=params)
+        data = response.json()
+        if "values" in data:
+            return data  # Return the fetched data
+        else:
+            print("No valid data received from API.")
+            return None
+    except requests.RequestException as e:
+        print(f"Error fetching data from {url}: {e}")
+        return None
 def fetch_twit():
     connection = connect_to_db()
     if connection is None:
@@ -131,11 +153,12 @@ def check_for_new_posts(ticker, data):
 def save_newest_info():
     tickers = ["AAPL", "AMZN", "GOOG"]
     for ticker in tickers:
-        data = fetch_data(ticker)
+        data = fetch_data_newest(ticker)
         newest_data=data["values"][0]
         print(newest_data)
         datetime_str = newest_data["datetime"]
-        datetime_obj = datetime.strptime(datetime_str, '%Y-%m-%d')
+        datetime_obj = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+        print(datetime_obj)
         save_to_db_newest(ticker, datetime_obj, newest_data["open"], newest_data["high"], newest_data["low"], newest_data["close"], newest_data["volume"])
 def save_newest_data():
     tickers = ["AAPL", "AMZN", "GOOG"]
@@ -156,7 +179,7 @@ def save_newest_twit():
         
 scheduler = BackgroundScheduler()
 
-scheduler.add_job(func=save_newest_info, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
+scheduler.add_job(func=save_newest_info, trigger="interval", minutes=5)  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=save_newest_data, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=save_newest_twit, trigger="interval", hours=1)  # Lấy dữ liệu mỗi 5 giây
 # scheduler.add_job(func=saveArimaPredictData, trigger="interval", seconds=10)  # In dữ liệu mỗi 5 giây

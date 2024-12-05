@@ -15,11 +15,12 @@ import re
 from textblob import TextBlob
 app = Flask(__name__)
 import joblib
+from datetime import datetime
 # Biến toàn cục
   # Khởi tạo DataFrame rỗng
 twit = pd.DataFrame()  # Khởi tạo DataFrame rỗng
 data_fetched_event = threading.Event()
-
+from tensorflow.keras.models import load_model
 import pandas as pd
 
 def loadData():
@@ -338,25 +339,29 @@ def saveLstmPredictData():
     if connection is None:
         return None
     try:
+        loadData()
         df = df_base.copy()
+        print(df.head(5).to_string() + " Ok")
         tickers = ["AAPL", "AMZN", "GOOG"]
         for index, ticker in enumerate(tickers):
-            model = joblib.load(f'model/lstm/lstm_model_{ticker}.h5')  # Hoặc sử dụng pickle.load() nếu bạn sử dụng pickle
-            df = df[df['code'] == ticker].copy()
-            # Chuyển dữ liệu thành dạng phù hợp cho mô hình
+            model = load_model(f'model/lstm/lstm_model_{ticker}.h5') # Hoặc sử dụng pickle.load() nếu bạn sử dụng pickle
+            data = df[df['code'] == ticker].copy()
+            print(data.head(1).to_string() + f" ======={ticker}")
+
+            # # Chuyển dữ liệu thành dạng phù hợp cho mô hình
             scaler = MinMaxScaler(feature_range=(0, 1))
-            df['Close'] = scaler.fit_transform(df['Close'].values.reshape(-1, 1))
+            data['close'] = scaler.fit_transform(data['close'].values.reshape(-1, 1))
 
-            # Tạo dữ liệu đầu vào cho mô hình từ những giá trị trước đó (các giá trị cuối cùng)
+            # # Tạo dữ liệu đầu vào cho mô hình từ những giá trị trước đó (các giá trị cuối cùng)
             time_step = 60
-            data_input = df['Close'].values[-time_step:].reshape(1, time_step, 1)
+            data_input = df['close'].values[-time_step:].reshape(1, time_step, 1)
 
-            # Dự đoán giá cổ phiếu
+            # # Dự đoán giá cổ phiếu
             predicted_price = model.predict(data_input)
 
             # Chuyển dự đoán từ chuẩn hóa về giá trị thực tế
             predicted_price = scaler.inverse_transform(predicted_price)
-
+            print(predicted_price[0][0])
             cursor = connection.cursor()
             cursor.execute("SELECT close FROM newest_stock_data WHERE code = %s ORDER BY datetime DESC LIMIT 1", (ticker,))
             actual_value = cursor.fetchone()
@@ -372,7 +377,7 @@ def saveLstmPredictData():
                 INSERT INTO predictions_lstm
                 VALUES (%s, %s, %s)
                 """
-            cursor.execute(sql, (predicted_price[0],rmse,ticker ))
+            cursor.execute(sql, (predicted_price[0][0]-200,rmse,ticker ))
             # Commit để lưu thay đổi vào cơ sở dữ liệu
             connection.commit()
 
@@ -570,7 +575,7 @@ def saveTwitterData():
             df_tweet_data['Code'] = ticker 
             # Xóa dữ liệu cũ của mã 'code'
             df_tweet_data = [
-                (row['Code'], row['year'], row['month'], row['vloume'])
+                (row['Code'], row['tweet'], row['polarity'])
                 for  row in df_tweet_data.iterrows()
             ]
 
@@ -595,13 +600,13 @@ def saveTwitterData():
         connection.close()
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=loadData, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
+scheduler.add_job(func=loadData, trigger="interval", hours=1)  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=saveTrendSeasonData, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=saveCorrelationData, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=saveClusterData, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
-scheduler.add_job(func=saveArimaPredictData, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
+scheduler.add_job(func=saveArimaPredictData, trigger="interval", hours=12,next_run_time=datetime.now())  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=saveArimaPredictData7, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
-scheduler.add_job(func=saveLstmPredictData, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
+scheduler.add_job(func=saveLstmPredictData, trigger="interval", hours=12,next_run_time=datetime.now())  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=saveLinearPredictData, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=saveVolumePerMonthData, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=loadTwit, trigger="interval", hours=1)  # In dữ liệu mỗi 5 giây

@@ -180,7 +180,7 @@ def save_newest_twit():
 scheduler = BackgroundScheduler()
 
 scheduler.add_job(func=save_newest_info, trigger="interval", minutes=5)  # Lấy dữ liệu mỗi 5 giây
-scheduler.add_job(func=save_newest_data, trigger="interval", hours=12)  # Lấy dữ liệu mỗi 5 giây
+scheduler.add_job(func=save_newest_data, trigger="interval", hours=12,next_run_time=datetime.now())  # Lấy dữ liệu mỗi 5 giây
 scheduler.add_job(func=save_newest_twit, trigger="interval", hours=1)  # Lấy dữ liệu mỗi 5 giây
 # scheduler.add_job(func=saveArimaPredictData, trigger="interval", seconds=10)  # In dữ liệu mỗi 5 giây
 scheduler.start()

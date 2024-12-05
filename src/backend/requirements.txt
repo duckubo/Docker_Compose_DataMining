@@ -11,3 +11,4 @@ statsmodels
 flask
 apscheduler
 textblob
+tensorflow
